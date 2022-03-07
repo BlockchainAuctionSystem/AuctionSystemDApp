@@ -10,7 +10,7 @@ contract Auction {
     string public title;
     string public description;
     uint public startingBid;
-
+    string public linkToImage;
     // Current state of the auction.
     address public highestBidder;
     uint public highestBid;
@@ -39,13 +39,15 @@ contract Auction {
         string calldata _title,
         string calldata _description,
         uint _startingBid,
-        uint _biddingTime
+        uint _biddingTime,
+        string calldata _linkToImage
     ) external {
         beneficiary = _beneficiary;
         auctionEndTime = block.timestamp + _biddingTime;
         title = _title;
         description = _description;
         startingBid = _startingBid;
+        linkToImage = _linkToImage;
     }
 
     /// Bid on the auction with the value sent

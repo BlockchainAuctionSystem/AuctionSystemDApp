@@ -2,6 +2,7 @@ App = {
     web3Provider: null,
     contracts: {},
     auctionFactoryInstance: null,
+    account: null,
     init: async function() {
         console.log("Initializing DApp...");
         return await App.initWeb3();
@@ -35,6 +36,7 @@ App = {
     },
 
     initContracts: function() {
+       
         $.getJSON('Auction.json', function(data) {
             // Get the necessary contract artifact file and instantiate it with @truffle/contract
             var AuctionArtifact = data;
@@ -50,21 +52,14 @@ App = {
 
             // Set the provider for our contract
             App.contracts.AuctionFactory.setProvider(App.web3Provider);
-
             // Use our contract to retrieve auctions
             return App.loadAuctions();
         });
-
+        
         return App.bindEvents();
     },
 
-    bindEvents: function() {
-        $(document).on('click', '.btn-bid', App.handleBid);
-        $(document).on('click', '.btn-auction', App.createAuction);
-    },
-
-    createAuction: async function(event) {
-        event.preventDefault();
+    bindEvents: async function() {
         await window.ethereum.request({
             method: "wallet_requestPermissions",
             params: [{
@@ -76,10 +71,18 @@ App = {
                 console.log(error);
             }
             console.log("Available accounts:" + accounts);
-            var account = accounts[0];
-            console.log("Using account: " + account);
-            App.auctionFactoryInstance.createAuction(accounts[0], "Created New From Frontend", "Realizarea liniei de metrou", 100, 100);
+            App.account = accounts[0];
+            console.log("Using account: " + App.account);
         });
+        $(document).on('click', '.btn-bid', App.handleBid);
+        $(document).on('click', '.btn-auction', App.createAuction);
+    },
+
+    createAuction: async function(event) {
+        event.preventDefault();
+        //TO DO: Call the function with params from form
+        App.auctionFactoryInstance.createAuction(App.account, "Created New From Frontend", "Realizarea liniei de metrou", 100, 100, "https://i0.wp.com/media.revistabiz.ro/uploads/2020/06/metrou_Bucuresti_Dreamstime_109419765.jpg", {from: App.account});
+
     },
 
 
@@ -113,7 +116,8 @@ App = {
                 return App.contracts.Auction.at(auctionAddress). //TO DO: Bind to old auctions events too
                 then(contract => {
                     //TO DO: Bind to old auctions events too
-                    contract.endAuction();
+                    console.log(contract);
+                    //Could call here but would require user to pay the transaction contract.endAuction({from: App.account});
                     return App.getDataFromAuctionContract(contract);})
             });
             var auctionsData = await Promise.all(promises);
@@ -161,7 +165,7 @@ App = {
 
     getDataFromAuctionContract: async function(contract) {
         var data = {};
-        var promises = [contract.address, contract.beneficiary.call(), contract.title.call(), contract.description.call(), contract.startingBid.call(), contract.auctionEndTime.call()];
+        var promises = [contract.address, contract.beneficiary.call(), contract.title.call(), contract.description.call(), contract.startingBid.call(), contract.auctionEndTime.call(), contract.linkToImage.call()];
         solvedPromises = await Promise.all(promises);
         data['_auctionAddress'] = solvedPromises[0];
         data['_beneficiary'] = solvedPromises[1];
@@ -169,7 +173,7 @@ App = {
         data['_description'] = solvedPromises[3];
         data['_startingBid'] = solvedPromises[4];
         data['_biddingTime'] = solvedPromises[5];
-
+        data['_linkToImage'] = solvedPromises[6];
         return data;
 
     },
@@ -183,6 +187,7 @@ App = {
         auctionTemplate.find('.auction-starting-bid').text(data['_startingBid']);
         auctionTemplate.find('.auction-description').text(data['_description']);
         auctionTemplate.find('.auction-end-time').text(data['_biddingTime']);
+        auctionTemplate.find('img').attr('src',data['_linkToImage']);
         auctionsRow.append(auctionTemplate.html());
     }
 

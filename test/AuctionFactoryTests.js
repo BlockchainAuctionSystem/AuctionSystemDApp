@@ -14,9 +14,10 @@ contract("AuctionFactory", function (accounts) {
       });
   
       it("Should create new Auctions", async () => {
-        await factory.createAuction(accounts[0], "Metrou Drumul Taberei", "Realizarea liniei de metrou", 100, 100); //Time is in seconds
-        await factory.createAuction(accounts[1], "Tanc Rusesc", "Nu bate nu troncane", 100, 100);
-        await factory.createAuction(accounts[2], "Masti COVID-19", "Furnizarea mastilor pentru Spitalul Elias", 100, 100);
+        let link = "https://i0.wp.com/media.revistabiz.ro/uploads/2020/06/metrou_Bucuresti_Dreamstime_109419765.jpg"
+        await factory.createAuction(accounts[0], "Metrou Drumul Taberei", "Realizarea liniei de metrou", 100, 100, link); //Time is in seconds
+        await factory.createAuction(accounts[1], "Tanc Rusesc", "Nu bate nu troncane", 100, 100, link);
+        await factory.createAuction(accounts[2], "Masti COVID-19", "Furnizarea mastilor pentru Spitalul Elias", 100, 100, link);
         const children = await factory.getAuctions();
 
         const child1 = await Auction.at(children[0]);

@@ -8,8 +8,8 @@ module.exports = function(deployer,network,accounts) {
   }).then(async () => {
 //Some test data
     let auctionFactory = await AuctionFactory.deployed();
-  let accounts = await web3.eth.getAccounts()
-  auctionFactory.createAuction(accounts[0], "Metrou Drumul Taberei", "Realizarea liniei de metrou", 100, 100);
+  let accounts = await web3.eth.getAccounts();
+  auctionFactory.createAuction(accounts[0], "Metrou Drumul Taberei", "Realizarea liniei de metrou", 100, 100, "https://i0.wp.com/media.revistabiz.ro/uploads/2020/06/metrou_Bucuresti_Dreamstime_109419765.jpg");
   });
   
 };

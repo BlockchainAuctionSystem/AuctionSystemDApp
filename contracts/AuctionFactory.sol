@@ -17,18 +17,19 @@ contract AuctionFactory is CloneFactory {
     string _title, 
     string _description,
     uint _startingBid, 
-    uint _biddingTime);
+    uint _biddingTime, string _linkToImage);
     
     function createAuction(address payable _beneficiary, 
     string calldata _title, 
     string calldata _description,
     uint _startingBid,
-    uint _biddingTime) external returns(address) {
+    uint _biddingTime,
+    string calldata _linkToImage) external returns(address) {
         Auction newAuction = Auction(createClone(masterContract));
-        newAuction.init(_beneficiary, _title, _description, _startingBid, _biddingTime);
+        newAuction.init(_beneficiary, _title, _description, _startingBid, _biddingTime, _linkToImage);
         auctions.push(newAuction);
         address newAuctionAddress = address(newAuction);
-        emit AuctionCreated(newAuctionAddress, _beneficiary, _title, _description, _startingBid, _biddingTime);
+        emit AuctionCreated(newAuctionAddress, _beneficiary, _title, _description, _startingBid, _biddingTime, _linkToImage);
         return newAuctionAddress;
     }
 
