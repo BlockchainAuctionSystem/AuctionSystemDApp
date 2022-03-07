@@ -187,7 +187,7 @@ App = {
         auctionTemplate.find('.auction-starting-bid').text(data['_startingBid']);
         auctionTemplate.find('.auction-description').text(data['_description']);
         auctionTemplate.find('.auction-end-time').text(data['_biddingTime']);
-        auctionTemplate.find('img').attr('src',data['_linkToImage']);
+        auctionTemplate.find('img').attr('src', data['_linkToImage']);
         auctionsRow.append(auctionTemplate.html());
     }
 
