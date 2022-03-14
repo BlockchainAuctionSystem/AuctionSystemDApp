@@ -36,7 +36,7 @@ App = {
     },
 
     initContracts: function() {
-       
+
         $.getJSON('Auction.json', function(data) {
             // Get the necessary contract artifact file and instantiate it with @truffle/contract
             var AuctionArtifact = data;
@@ -80,8 +80,36 @@ App = {
 
     createAuction: async function(event) {
         event.preventDefault();
-        //TO DO: Call the function with params from form
-        App.auctionFactoryInstance.createAuction(App.account, "Created New From Frontend", "Realizarea liniei de metrou", 100, 100, "https://i0.wp.com/media.revistabiz.ro/uploads/2020/06/metrou_Bucuresti_Dreamstime_109419765.jpg", {from: App.account});
+        const title = $("#auction-name").val(); 
+        const description = $("#auction-desc").val();
+        const time = $("#auction-duration").val();
+        const startBid = $("#starting-bid").val();
+        const img = $("#img").val();
+
+        const ipfs = window.IpfsHttpClient('ipfs.infura.io', '5001', { protocol: 'https' });
+        if(!img) {
+            console.log("Using default image");
+            App.auctionFactoryInstance.createAuction(App.account, title, description, parseInt(startBid), parseInt(time), "https://media.istockphoto.com/photos/gavel-on-auction-word-picture-id917901978?k=20&m=917901978&s=612x612&w=0&h=NULGu8-bVpy28gbW6AZbZlEVra-Q4s2rg607emPfkCs=", {from: App.account});
+        }
+        else {
+           
+            const file = document.getElementById("img").files[0]; //File Object
+
+            let read = new FileReader();
+            read.readAsArrayBuffer(file);
+            read.onloadend = function(){
+                const fileContent = read.result; //fileContent string
+                const fileBuffer = buffer.Buffer.from(fileContent); //Buffer from string
+                ipfs.add(fileBuffer, (err, result) => {
+                    let ipfsLink = "https://gateway.ipfs.io/ipfs/" + result[0].hash;
+                    console.log("Ipfs link for uploaded img: ", ipfsLink);
+                     App.auctionFactoryInstance.createAuction(App.account, title, description, parseInt(startBid), parseInt(time), ipfsLink, {from: App.account});
+                });
+            };
+            read.readAsArrayBuffer(file);
+        }
+
+       
 
     },
 
