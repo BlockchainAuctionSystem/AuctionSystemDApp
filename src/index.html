@@ -59,9 +59,14 @@
         </div>
       </div>
 
-      <div style="margin-top: 60px; margin-bottom:15px">Current actions that you can bid for:</div>
+      <div style="margin-top: 60px; margin-bottom:15px">Current auctions that you can bid for:</div>
       <div id="auctionsRow" class="row">
         <!-- AUCTIONS LOAD HERE -->
+      </div>
+
+      <div style="margin-top: 60px; margin-bottom:15px">Finished auctions:</div>
+      <div id="finisedAuctionsRow" class="row">
+        <!-- FINISHED AUCTIONS LOAD HERE -->
       </div>
     
 
@@ -74,21 +79,39 @@
           <div class="panel-body">
             <img alt="140x140" data-src="holder.js/140x140" class="img-rounded img-center" style="width: 100%;" src="https://animalso.com/wp-content/uploads/2017/01/Golden-Retriever_6.jpg" data-holder-rendered="true">
             <br/><br/>
+            <form id="bid-form">
             <strong>Auction Address:</strong> <span class="auction-address"></span><br/>
             <strong>Description:</strong> <span class="auction-description">John Smith</span><br/>
             <strong>Seller:</strong> <span class="auction-seller">John Smith</span><br/>
             <strong>Starting Bid:</strong> <span class="auction-starting-bid">John Smith</span><br/>
-            <strong>Highest Bid:</strong> <span class="auction-bid">TO DO</span><br/>
+            <strong>Highest Bid:</strong> <span class="auction-bid">No one has bidded yet</span><br/>
+            <strong>Highest Bidder:</strong> <span class="highest-bidder">No one has bidded yet</span><br/>
             <strong>End Time:</strong> <span class="auction-end-time">15 min</span><br/><br/>
-
-            <form>
             <label for="bid-amount">Bid for:</label>
-            <input type="number" id="bid-amount" name="bid-amount">
-            <label for="name">Name (0 to 20 characters):</label>
-            <input type="text" id = "name" name = "name" maxlength="20">
-              <input type="submit" value="Bid" class="btn btn-default btn-bid" data-id=0>
+            <input type="number" value="100" min="10" required id="bid-amount" name="bid-amount">
+              <input type="submit" id="bid-button" value="Bid" class="btn btn-default btn-bid" data-id=0>
             </form>
 
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="finisedAuctionTemplate" style="display: none;">
+      <div class="col-sm-6 col-md-4 col-lg-3">
+        <div class="panel panel-default panel-auction">
+          <div class="panel-heading">
+            <h3 class="panel-title">Roman Coin</h3>
+          </div>
+          <div class="panel-body">
+            <img alt="140x140" data-src="holder.js/140x140" class="img-rounded img-center" style="width: 100%;" src="https://animalso.com/wp-content/uploads/2017/01/Golden-Retriever_6.jpg" data-holder-rendered="true">
+            <br/><br/>
+            <strong>Auction Address:</strong> <span class="auction-address"></span><br/>
+            <strong>Description:</strong> <span class="auction-description">John Smith</span><br/>
+            <strong>Seller:</strong> <span class="auction-seller">John Smith</span><br/>
+            <strong>Starting Bid:</strong> <span class="auction-starting-bid">John Smith</span><br/>
+            <strong>Highest Bid:</strong> <span class="auction-bid">No one has bidded yet</span><br/>
+            <strong>Winner:</strong> <span class="highest-bidder">No one has bidded yet</span><br/>
           </div>
         </div>
       </div>

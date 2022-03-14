@@ -60,12 +60,12 @@ App = {
     },
 
     bindEvents: async function() {
-        await window.ethereum.request({
-            method: "wallet_requestPermissions",
-            params: [{
-                eth_accounts: {}
-            }]
-        });
+        // await window.ethereum.request({
+        //     method: "wallet_requestPermissions",
+        //     params: [{
+        //         eth_accounts: {}
+        //     }]
+        // });
         web3.eth.getAccounts(function(error, accounts) {
             if (error) {
                 console.log(error);
@@ -74,8 +74,8 @@ App = {
             App.account = accounts[0];
             console.log("Using account: " + App.account);
         });
-        $(document).on('click', '.btn-bid', App.handleBid);
         $(document).on('click', '.btn-auction', App.createAuction);
+        $(document).on('submit', '#bid-form', App.handleBid);
     },
 
     createAuction: async function(event) {
@@ -106,7 +106,7 @@ App = {
                      App.auctionFactoryInstance.createAuction(App.account, title, description, parseInt(startBid), parseInt(time), ipfsLink, {from: App.account});
                 });
             };
-            read.readAsArrayBuffer(file);
+           // read.readAsArrayBuffer(file);
         }
 
        
@@ -134,6 +134,28 @@ App = {
                 if(err)
                 console.log("Error in binding listener to AuctionCreated event: " + err);
                 //TO DO: Bind to new auction events
+                console.log(result);
+                auctionAddress = result.args._auctionAddress;
+                App.contracts.Auction.at(auctionAddress).HighestBidIncreased().watch(
+                    function(err, result) {
+                        if(err)
+                        console.log("Error in binding listener to HighestBidIncreased event: " + err);
+                        
+                        //update data & front-end
+                        data = getDataFromAuctionContract(result['args'])
+                        App.createFront(data);
+
+                })
+                App.contracts.Auction.at(auctionAddress).AuctionEnded().watch(
+                    function(err, result) {
+                        if(err)
+                        console.log("Error in binding listener to HighestBidIncreased event: " + err);
+                        
+                        //update data & front-end
+                        data = getDataFromAuctionContract(result['args'])
+                        App.createFrontForFinishedAuction(data);
+
+                })
                 console.log("Bound listener to event AuctionCreated event");
                 App.createFront(result['args']);
             });
@@ -144,6 +166,27 @@ App = {
                 return App.contracts.Auction.at(auctionAddress). //TO DO: Bind to old auctions events too
                 then(contract => {
                     //TO DO: Bind to old auctions events too
+                    auctionAddress = contract.address;
+                    App.contracts.Auction.at(auctionAddress).HighestBidIncreased().watch(
+                        function(err, result) {
+                            if(err)
+                            console.log("Error in binding listener to HighestBidIncreased event: " + err);
+                            
+                            //update data & front-end
+                            data = getDataFromAuctionContract(result['args'])
+                            App.createFront(data);
+    
+                    })
+                    App.contracts.Auction.at(auctionAddress).AuctionEnded().watch(
+                        function(err, result) {
+                            if(err)
+                            console.log("Error in binding listener to HighestBidIncreased event: " + err);
+                            
+                            //update data & front-end
+                            data = getDataFromAuctionContract(result['args'])
+                            App.createFrontForFinishedAuction(data);
+    
+                    })
                     console.log(contract);
                     //Could call here but would require user to pay the transaction contract.endAuction({from: App.account});
                     return App.getDataFromAuctionContract(contract);})
@@ -159,11 +202,9 @@ App = {
 
     handleBid: function(event) {
         event.preventDefault();
-        //TO DO: Get auction address
-        // let auctionContract = await Auction.at(auction);
-        //Call the bid function
-        var auctionId = parseInt($(event.target).data('id'));
-        var bidAmount = parseInt($("form").eq(auctionId).find("#bid-amount").val());
+        const html = $(event.target);
+        const auctionId = html.find('.auction-seller').text();
+        const bidAmount = parseInt(html.find('#bid-amount').val());
         console.log(auctionId, bidAmount);
         var auctionInstance;
 
@@ -174,26 +215,23 @@ App = {
             }
 
             var account = accounts[0];
-
-            App.contracts.Auction.deployed().then(function(instance) {
-                auctionInstance = instance;
-
+            let auctionContract = App.contracts.Auction.at(auctionId); ///bind for the auction
                 // Execute the bidding
-                return auctionInstance.bid({
+                auctionContract.bid({
                     from: account,
                     value: bidAmount
                 });
-            }).then(function(result) {
-                return App.loadAuctions();
-            }).catch(function(err) {
-                console.log(err.message);
+            
+
+            //return App.loadAuctions();
             });
-        });
     },
 
     getDataFromAuctionContract: async function(contract) {
         var data = {};
-        var promises = [contract.address, contract.beneficiary.call(), contract.title.call(), contract.description.call(), contract.startingBid.call(), contract.auctionEndTime.call(), contract.linkToImage.call()];
+        var promises = [contract.address, contract.beneficiary.call(), contract.title.call(), contract.description.call(),
+             contract.startingBid.call(), contract.auctionEndTime.call(), contract.linkToImage.call(), contract.highestBid.call(),
+             contract.highestBidder.call()];
         solvedPromises = await Promise.all(promises);
         data['_auctionAddress'] = solvedPromises[0];
         data['_beneficiary'] = solvedPromises[1];
@@ -202,6 +240,9 @@ App = {
         data['_startingBid'] = solvedPromises[4];
         data['_biddingTime'] = solvedPromises[5];
         data['_linkToImage'] = solvedPromises[6];
+        data['_highestBid'] = solvedPromises[7];
+        data['_highestBidder'] = solvedPromises[8];
+
         return data;
 
     },
@@ -216,7 +257,26 @@ App = {
         auctionTemplate.find('.auction-description').text(data['_description']);
         auctionTemplate.find('.auction-end-time').text(data['_biddingTime']);
         auctionTemplate.find('img').attr('src', data['_linkToImage']);
+        auctionTemplate.find('.highest-bidder').text(data['_highestBidder']);
+        auctionTemplate.find('.auction-bid').text(data['_highestBid']);
+
         auctionsRow.append(auctionTemplate.html());
+    },
+
+    createFrontForFinishedAuction: function(data) {
+        console.log("Created auction");
+        var finishedAuctionsRow = $('#finisedAuctionsRow');
+        var auctionTemplate = $('#finisedAuctionTemplate');
+        auctionTemplate.find('.panel-title').text(data['_title']);
+        auctionTemplate.find('.auction-address').text(data['_auctionAddress']);
+        auctionTemplate.find('.auction-seller').text(data['_beneficiary']);
+        auctionTemplate.find('.auction-starting-bid').text(data['_startingBid']);
+        auctionTemplate.find('.auction-description').text(data['_description']);
+        auctionTemplate.find('img').attr('src', data['_linkToImage']);
+        auctionTemplate.find('.highest-bidder').text(data['_highestBidder']);
+        auctionTemplate.find('.auction-bid').text(data['_highestBid']);
+
+        finishedAuctionsRow.append(auctionTemplate.html());
     }
 
 };
