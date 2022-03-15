@@ -32,7 +32,7 @@
           <div class="col-xs-12 col-sm-8 col-sm-push-2">
             <h3 class="text-center">Create New Auction</h1>
             <hr/>
-            <form>
+            <form id="create-form">
               <label for="name">*Auction Name (5 to 20 characters):</label>
               <input type="text" id = "auction-name" name = "name" minlength="5" maxlength="20" required>
               <br/>
@@ -84,12 +84,16 @@
             <strong>Description:</strong> <span class="auction-description">John Smith</span><br/>
             <strong>Seller:</strong> <span class="auction-seller">John Smith</span><br/>
             <strong>Starting Bid:</strong> <span class="auction-starting-bid">John Smith</span><br/>
-            <strong>Highest Bid:</strong> <span class="auction-bid">No one has bidded yet</span><br/>
-            <strong>Highest Bidder:</strong> <span class="highest-bidder">No one has bidded yet</span><br/>
+            <strong>Highest Bid:</strong> <span class="auction-bid">No one has bidden yet</span><br/>
+            <strong>Highest Bidder:</strong> <span class="highest-bidder">No one has bidden yet</span><br/>
             <strong>End Time:</strong> <span class="auction-end-time">15 min</span><br/><br/>
             <label for="bid-amount">Bid for:</label>
             <input type="number" value="100" min="10" required id="bid-amount" name="bid-amount">
-              <input type="submit" id="bid-button" value="Bid" class="btn btn-default btn-bid" data-id=0>
+              <input type="submit" id="bid-button" value="Bid" class="btn btn-default btn-bid">
+              </form>
+              <div class="d-flex justify-content-center">
+              <input type="button" id="end-auction" value="END Auction" class="btn btn-danger" data-id=0 style="display: none;">
+              </div>
             </form>
 
           </div>
@@ -106,12 +110,13 @@
           <div class="panel-body">
             <img alt="140x140" data-src="holder.js/140x140" class="img-rounded img-center" style="width: 100%;" src="https://animalso.com/wp-content/uploads/2017/01/Golden-Retriever_6.jpg" data-holder-rendered="true">
             <br/><br/>
-            <strong>Auction Address:</strong> <span class="auction-address"></span><br/>
             <strong>Description:</strong> <span class="auction-description">John Smith</span><br/>
             <strong>Seller:</strong> <span class="auction-seller">John Smith</span><br/>
-            <strong>Starting Bid:</strong> <span class="auction-starting-bid">John Smith</span><br/>
-            <strong>Highest Bid:</strong> <span class="auction-bid">No one has bidded yet</span><br/>
-            <strong>Winner:</strong> <span class="highest-bidder">No one has bidded yet</span><br/>
+            <strong>Highest Bid:</strong> <span class="highest-bid">0</span><br/>
+            <strong>Winner:</strong> <span class="winner">0</span><br/>
+            <div class="d-flex justify-content-center">
+              <input type="button" id="get-money" value="GET your money" class="btn btn-success" data-id=0 style="display: none;">
+              </div>
           </div>
         </div>
       </div>

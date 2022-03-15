@@ -21,11 +21,12 @@ truffle tests
 ```
 
 ## :notebook: TO DO: 
-- [ ] Fix "Invalid Address" bug when trying to create new auction from front end
-- [ ] Find a good way to call the endAuction() contract function (probably before bidding and when loading auctions)
-- [ ] Subscribe + Handle events defined in the Auction contract.
-- [ ] Find a way to store images (Worth looking into: https://docs.ipfs.io/how-to/websites-on-ipfs/single-page-website, we could upload the file there and store the link in the auction contract)
+- [x] Fix "Invalid Address" bug when trying to create new auction from front end
+- [x] Find a good way to call the endAuction() contract function (probably before bidding and when loading auctions)
+- [x] Subscribe + Handle events defined in the Auction contract.
+- [x] Find a way to store images (Worth looking into: https://docs.ipfs.io/how-to/websites-on-ipfs/single-page-website, we could upload the file there and store the link in the auction contract)
 
 ## :chart: Could improve:
 - [ ] UI
 - [ ] Sorting / Filtering Auctions
+- [ ] Parse Unix timestamp to readable data - EndAuctionTime
