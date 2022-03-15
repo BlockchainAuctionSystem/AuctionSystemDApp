@@ -26,10 +26,10 @@ contract AuctionFactory is CloneFactory {
     uint _biddingTime,
     string calldata _linkToImage) external returns(address) {
         Auction newAuction = Auction(createClone(masterContract));
-        newAuction.init(_beneficiary, _title, _description, _startingBid, _biddingTime, _linkToImage);
+        newAuction.init(_beneficiary, _title, _description, _startingBid,  block.timestamp +  _biddingTime, _linkToImage);
         auctions.push(newAuction);
         address newAuctionAddress = address(newAuction);
-        emit AuctionCreated(newAuctionAddress, _beneficiary, _title, _description, _startingBid, _biddingTime, _linkToImage);
+        emit AuctionCreated(newAuctionAddress, _beneficiary, _title, _description, _startingBid,  block.timestamp + _biddingTime, _linkToImage);
         return newAuctionAddress;
     }
 

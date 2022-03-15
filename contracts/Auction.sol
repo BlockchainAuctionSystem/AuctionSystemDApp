@@ -20,11 +20,15 @@ contract Auction {
 
     // Set to true at the end, disallows any change.
     // By default initialized to `false`.
-    bool ended;
+    bool public ended;
 
     // Events that will be emitted on changes.
     event HighestBidIncreased(address bidder, uint amount);
-    event AuctionEnded(address winner, uint amount);
+    event AuctionEnded(address beneficiary,string title, 
+            string description,
+            string linkToImage,
+            address winner, 
+            uint amount);
 
     // The following is a so-called natspec comment,
     // recognizable by the three slashes.
@@ -43,7 +47,7 @@ contract Auction {
         string calldata _linkToImage
     ) external {
         beneficiary = _beneficiary;
-        auctionEndTime = block.timestamp + _biddingTime;
+        auctionEndTime = _biddingTime;
         title = _title;
         description = _description;
         startingBid = _startingBid;
@@ -131,8 +135,8 @@ contract Auction {
         require(!ended, "auctionEnd has already been called.");
 
         // 2. Effects
-        ended = true;
-        emit AuctionEnded(highestBidder, highestBid);
+        ended = true;    //seller
+        emit AuctionEnded(beneficiary, title, description, linkToImage, highestBidder, highestBid);
 
         // 3. Interaction
         beneficiary.transfer(highestBid);
