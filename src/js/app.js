@@ -165,7 +165,7 @@ App = {
             App.auctionFactoryInstance.AuctionCreated().watch(function(err, result) {
                 if (err)
                     console.log("Error in binding listener to AuctionCreated event: " + err);
-                //TO DO: Bind to new auction events
+                //Bind to new auction events
                 auctionAddress = result.args._auctionAddress;
                 let auctionInstance = App.contracts.Auction.at(auctionAddress);
                 console.log("args ", result['args'])
@@ -179,7 +179,7 @@ App = {
         }).then(async function(auctions) {
             console.log("Got " + auctions.length + " auctions");
             var promises = auctions.map(auctionAddress => {
-                return App.contracts.Auction.at(auctionAddress). //TO DO: Bind to old auctions events too
+                return App.contracts.Auction.at(auctionAddress). //Bind to old auctions events too
                 then(contract => {
 
                     let auctionInstance = App.contracts.Auction.at(auctionAddress);
@@ -211,7 +211,7 @@ App = {
             if (err)
                 console.log("Error in binding listener to HighestBidIncreased event: " + err);
 
-            //update data from front-end
+            //Update front-end data
             console.log("bid event catched");
             App.updateFrontEndForBidData(result['args'], auctionAddress);
 
