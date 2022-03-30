@@ -12,7 +12,7 @@ npm install -g truffle
 To run the DApp (make sure MetaMask is connected to the Ganache network if you want to create auctions / bid):
 ```
 truffle migrate --reset //Compiles and deploys contracts to the blockchain
-npm run 
+npm run dev
 ```
 
 To run tests:
