@@ -19,7 +19,7 @@ To run tests:
 ```
 truffle tests
 ```
-
+## :page_with_curl: [Documentation](https://docs.google.com/document/d/1RXOTfGPaXagoyLshXQtnB8JI_70AOatHbZcgQN4byTY/edit?usp=sharing)
 ## :notebook: TO DO: 
 - [x] Fix "Invalid Address" bug when trying to create new auction from front end
 - [x] Find a good way to call the endAuction() contract function (probably before bidding and when loading auctions)
