@@ -1,10 +1,12 @@
 const Auction = artifacts.require("Auction");
 const AuctionFactory = artifacts.require("AuctionFactory");
+// const CloneFactory = artifacts.require("CloneFactory");
 
 module.exports = function(deployer,network,accounts) {
     deployer.then(async () => {
       await deployer.deploy(Auction);
       await deployer.deploy(AuctionFactory, Auction.address);
+      // await deployer.deploy(CloneFactory);
   }).then(async () => {
 //Some test data
     let auctionFactory = await AuctionFactory.deployed();

@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "ipfs-core": "^0.14.1",
-    "ipfs-http-client": "^56.0.1"
+    "ipfs-http-client": "^56.0.1",
+    "web3": "^1.7.3"
   }
 }
