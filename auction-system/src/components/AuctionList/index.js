@@ -2,10 +2,10 @@ import React from 'react';
 import {connect} from 'react-redux';
 import {useEffect} from 'react';
 import {Box} from '@mui/material';
-import { readAuctions, endAuction, bid } from '../../state/actions/auction';
+import { readAuctions, endAuction, bid, getAmount } from '../../state/actions/auction';
 import AuctionDetail from '../AuctionDetail';
 
-const AuctionList = ({auctions, account, readAuctions, contracts, endAuction, bid}) => {
+const AuctionList = ({auctions, account, readAuctions, contracts, endAuction, bid, getAmount, filter}) => {
     useEffect(() => {
         if(contracts) {
             console.log(contracts);
@@ -13,14 +13,12 @@ const AuctionList = ({auctions, account, readAuctions, contracts, endAuction, bi
         }
         }, [contracts]);
     const handleBid = (bidAmount, auctionAddress) => bid(contracts, account, auctionAddress, bidAmount);
-    const handleEndAuction = (auctionAddress) => 
-    { 
-      return endAuction(contracts, account, auctionAddress);
-    };
+    const handleEndAuction = (auctionAddress) => endAuction(contracts, account, auctionAddress);
+    const handleGetAmount = (auctionAddress) => getAmount(contracts, account, auctionAddress);
     return (
     <>
       <Box>
-        <Box sx={{fontSize: 'body.fontSize'}}>{auctions.filter(auction => !auction._ended).length} available auctions</Box>
+        <Box sx={{fontSize: 'body.fontSize'}}>{auctions.filter(filter).length} available auctions</Box>
         <Box sx={{
           display: 'flex',
           flexDirection: 'row',
@@ -34,12 +32,13 @@ const AuctionList = ({auctions, account, readAuctions, contracts, endAuction, bi
               gap: 3,
               flexWrap: 'wrap',
             }}>
-              {auctions.filter(auction => !auction._ended).map((auction, index) => (
-                <AuctionDetail 
+              {auctions.filter(filter).map((auction, index) => (
+                auction._biddingTime && <AuctionDetail 
                 key={index} 
                 auction={auction}
                 endAuction={handleEndAuction}
                 bid={handleBid}
+                getAmount={handleGetAmount}
                 ></AuctionDetail>
               ))}
             </Box>
@@ -64,7 +63,8 @@ const mapDispatchToProps = (dispatch) => {
     dispatch,
     readAuctions: (contracts) => dispatch(readAuctions(contracts)),
     endAuction: (contracts, account, auctionAddress) => dispatch(endAuction(contracts, account, auctionAddress)),
-    bid: (contracts, account, auctionAddress, bidAmount) => dispatch(bid(contracts, account, auctionAddress, bidAmount))
+    bid: (contracts, account, auctionAddress, bidAmount) => dispatch(bid(contracts, account, auctionAddress, bidAmount)),
+    getAmount: (contracts, account, auctionAddress) => dispatch(getAmount(contracts, account, auctionAddress))
   };
 };
 export default connect(

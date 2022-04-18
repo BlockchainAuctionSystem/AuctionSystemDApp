@@ -32,7 +32,8 @@ const App = ({createAuction, setupEnv,  account, auctionFactoryInstance}) => {
         <p>Your Truffle Box is installed and ready.</p>
         <h2>Smart Contract Example</h2>
         <div>{account}</div>
-        <AuctionList/>
+        <AuctionList filter={(auction) => !auction._ended}/>
+        <AuctionList filter={(auction) => auction._ended}/>
         <AuctionCreateForm handleAuctionCreate={handleAuctionCreate}/>
       </div>
     );
@@ -41,7 +42,8 @@ const App = ({createAuction, setupEnv,  account, auctionFactoryInstance}) => {
 function mapStateToProps(state) {
   return {
      account: state.account,
-     auctionFactoryInstance: state.auctionFactoryInstance
+     auctionFactoryInstance: state.auctionFactoryInstance,
+     contracts: state.contracts
   };
 }
 
@@ -49,7 +51,7 @@ const mapDispatchToProps = (dispatch) => {
   return {
     dispatch,
     setupEnv: () => dispatch(setupEnv()),
-    createAuction: (auctionFactoryInstance,account, payload) => dispatch(createAuction(auctionFactoryInstance, account,payload))
+    createAuction: (auctionFactoryInstance, account, payload) => dispatch(createAuction(auctionFactoryInstance, account,payload))
   };
 };
 export default connect(

@@ -9,11 +9,11 @@ import { DEFAULT_AUCTION_PHOTO_URL } from "../../utils/constants";
 /**
  * Setup the auction's environment
  * 
- * @returns {Function}
+ * @returns {function}
  */
 const setupEnv = () => 
    async (dispatch) => {
-         // Get network provider and web3 instance.
+      // Get network provider and web3 instance.
       const web3 = await getWeb3();
 
       // Use web3 to get the user's accounts.
@@ -40,8 +40,8 @@ const setupEnv = () =>
 /**
 *  Read auctions
 * 
-* @param {*} contracts 
-* @returns 
+* @param {object} contracts An object containing the contracts
+* @returns {function}
 */
 const readAuctions = (contracts) => 
    async (dispatch) => {
@@ -54,9 +54,13 @@ const readAuctions = (contracts) =>
               //Bind to new auction events
               let auctionAddress = result.args._auctionAddress;
               let auctionInstance = await contracts.auction.at(auctionAddress);
-              console.log("args ", result['args']);
-              auctionInstance.HighestBidIncreased(() => console.log("Highest increased!"));
-              auctionInstance.AuctionEnded(() => console.log("The auction ended!"));
+              auctionInstance.HighestBidIncreased((err, result) => dispatch(handleHighestBidIncreasedEvent(err, result, auctionAddress, auctionInstance)));
+              auctionInstance.AuctionEnded((err, result) => dispatch(handleAuctionEnd(err,result, auctionAddress, auctionInstance)));
+              let auctionData = await getDataFromAuctionContract(auctionInstance);
+              dispatch({
+                type: ACTION_TYPES.ADD_AUCTION,
+                payload: auctionData
+               });
            });
            dispatch({
                type: ACTION_TYPES.SET_AUCTION_FACTORY,
@@ -70,29 +74,12 @@ const readAuctions = (contracts) =>
                     return contracts.auction.at(auctionAddress). //Bind to old auctions events too
                     then(async contract => {
     
-                        let auctionInstance = contracts.auction.at(auctionAddress);
-    
+                        let auctionInstance = await contracts.auction.at(auctionAddress);
                         //TO DO: Bind to old auctions events too
                         auctionAddress = contract.address;
-                        // auctionInstance.HighestBidIncreased().watch((err, result) => App.handleHighestBidIncreasedEvent(err, result, auctionAddress));
-                        // auctionInstance.AuctionEnded().watch((err, result) => App.handleAuctionEnd(err,result, auctionAddress));
-                        let promises = [contract.address, contract.beneficiary.call(), contract.title.call(), contract.description.call(),
-                            contract.startingBid.call(), contract.auctionEndTime.call(), contract.linkToImage.call(), contract.highestBid.call(),
-                            contract.highestBidder.call(), contract.ended.call()
-                        ];
-                        let solvedPromises = await Promise.all(promises);
-                        return {
-                            _auctionAddress: solvedPromises[0],
-                            _beneficiary: solvedPromises[1],
-                            _title: solvedPromises[2],
-                            _description: solvedPromises[3],
-                            _startingBid: solvedPromises[4],
-                            _biddingTime: solvedPromises[5],
-                            _linkToImage: solvedPromises[6],
-                            _highestBid: solvedPromises[7],
-                            _highestBidder: solvedPromises[8],
-                            _ended: solvedPromises[9]
-                        };
+                        auctionInstance.HighestBidIncreased((err, result) => dispatch(handleHighestBidIncreasedEvent(err, result, auctionAddress, auctionInstance)));
+                        auctionInstance.AuctionEnded((err, result) => dispatch(handleAuctionEnd(err,result, auctionAddress, auctionInstance)));
+                        return getDataFromAuctionContract(contract);
                     })
                 });
                 auctionResult = await Promise.all(promises);
@@ -109,15 +96,15 @@ const readAuctions = (contracts) =>
 /**
  * Create a new auction
  * 
- * @param {*} auctionFactoryInstance 
- * @param {*} payload 
- * @returns 
+ * @param {object} auctionFactoryInstance 
+ * @param {object} payload Data for the new auction
+ * @returns {function}
  */    
 const createAuction = (auctionFactoryInstance, account, payload) => 
    async (dispatch) => {
         const {title, description, startingBid, biddingTime, image} = payload;
         if(!image) {
-            auctionFactoryInstance.createAuction(account, title, description, parseInt(startingBid),
+             auctionFactoryInstance.createAuction(account, title, description, parseInt(startingBid),
              parseInt(biddingTime), DEFAULT_AUCTION_PHOTO_URL, {
             from: account
             });
@@ -132,12 +119,18 @@ const createAuction = (auctionFactoryInstance, account, payload) =>
                 });
             };
         dispatch({
-            type: ACTION_TYPES.ADD_AUCTION,
+            type: ACTION_TYPES.INIT_ADD_AUCTION
         });
     };
 
-
-// // TO BE TESTED!
+/**
+ * End an auction
+ * 
+ * @param {object} contracts An object containing the contracts
+ * @param {string} account The account performing the action
+ * @param {string} auctionId The auction's identifier
+ * @returns {function}
+ */    
 const endAuction = (contracts, account, auctionId) => 
     async (dispatch) => {
         let auctionContract = await contracts.auction.at(auctionId);
@@ -153,17 +146,32 @@ const endAuction = (contracts, account, auctionId) =>
         });
     };
 
-// // TO BE TESTED!
-// const getAmount = (contracts, account, auctionId) => 
-//     async (dispatch) => {
-//         auctionContract = contracts.auction.at(auctionId);
-//         console.log(auctionId, auctionContract);
-//         auctionContract.withdraw({
-//             from: account
-//         });
-//     }; 
+/**
+ * Withdraw money from the bid
+ * 
+ * @param {object} contracts An object containing the contracts
+ * @param {string} account The account performing the action
+ * @param {string} auctionId The auction's identifier
+ * @returns {function}
+ */
+const getAmount = (contracts, account, auctionId) => 
+    async (dispatch) => {
+        let auctionContract = await contracts.auction.at(auctionId);
+        console.log(auctionId, auctionContract);
+        auctionContract.withdraw({
+            from: account
+        });
+    }; 
 
-// // TO BE TESTED!
+/**
+ * Bid in an auction
+ * 
+ * @param {object} contracts An object containing the contracts
+ * @param {string} account The account performing the action
+ * @param {string} auctionId The auction's identifier
+ * @param {number} bidAmount The amount bidded
+ * @returns {function}
+ */
 const bid = (contracts, account, auctionId, bidAmount) =>
     async (dispatch) => {
         let auctionContract = await contracts.auction.at(auctionId); ///bind for the auction
@@ -174,11 +182,62 @@ const bid = (contracts, account, auctionId, bidAmount) =>
             from: account,
             value: bidAmount
         });
-    }    
+    }
+
+const handleHighestBidIncreasedEvent = (err, result, auctionAddress, oldAuction) => 
+     {
+         console.log(result);
+         return {
+            type:ACTION_TYPES.UPDATE_AUCTION,
+            payload: {
+                auctionId: auctionAddress,
+                updatedAuction: {
+                    ...oldAuction,
+                        _highestBidder: result['args']['bidder'],
+                        _highestBid: result['args']['amount']
+                }
+            }
+         }
+    }
+const handleAuctionEnd = (err, result, auctionAddress, oldAuction) => 
+        {
+            return {
+            type:ACTION_TYPES.UPDATE_AUCTION,
+            payload: {
+                auctionId: auctionAddress,
+                updatedAuction: {...oldAuction,
+                 _beneficiary: result['args']['beneficiary'],
+                 _winner: result['args']['winner'],
+                _biddingTime: result['args']['biddingTime']}
+            }
+        }
+    }
+
+const getDataFromAuctionContract =  async (contract) => 
+     {
+        let promises = [contract.address, contract.beneficiary.call(), contract.title.call(), contract.description.call(),
+            contract.startingBid.call(), contract.auctionEndTime.call(), contract.linkToImage.call(), contract.highestBid.call(),
+            contract.highestBidder.call(), contract.ended.call()
+        ];
+        let solvedPromises = await Promise.all(promises);
+        return {
+            _auctionAddress: solvedPromises[0],
+            _beneficiary: solvedPromises[1],
+            _title: solvedPromises[2],
+            _description: solvedPromises[3],
+            _startingBid: solvedPromises[4],
+            _biddingTime: solvedPromises[5],
+            _linkToImage: solvedPromises[6],
+            _highestBid: solvedPromises[7],
+            _highestBidder: solvedPromises[8],
+            _ended: solvedPromises[9]
+        };
+}
 export {
   createAuction,
   setupEnv,
   readAuctions,
   bid,
-  endAuction
+  endAuction,
+  getAmount
 };

@@ -4,7 +4,7 @@ import { formatDate } from '../../utils/functions';
 import { PaperStyle } from '../../utils/constants';
 
 const AuctionDetail = (props) => {
-   const { auction, endAuction, bid} = props;
+   const { auction, endAuction, bid, getAmount} = props;
    const {month, day, dayHour} = formatDate(auction._biddingTime.toNumber());
    const [bidAmount, setBidAmount] = useState(100);
    console.log(auction._linkToImage);
@@ -32,11 +32,12 @@ const AuctionDetail = (props) => {
               fontWeight: 'light',
               color: 'text.secondary',
             }}>
-              {auction._description}
+              {auction._description} {auction._startingBid.toNumber()}
             </Box>
           </div>
         </div>
-        <Button
+        {!auction._ended &&
+        <> <Button
             onClick={() => endAuction(auction._auctionAddress)}
             size="medium"
             variant="contained"
@@ -50,12 +51,23 @@ const AuctionDetail = (props) => {
         >
         </input>
         <Button
-            onClick={() => bid(bidAmount, auction._auctionAddress)}
+            onClick={() => bid(parseInt(bidAmount), auction._auctionAddress)}
             size="medium"
             variant="contained"
             disableElevation>
             <Box sx={{fontWeight: 500}}>Bid</Box>
         </Button>
+        </>}
+        {auction._ended &&
+        <>
+         <Button
+            onClick={() => getAmount(auction._auctionAddress)}
+            size="medium"
+            variant="contained"
+            disableElevation>
+            <Box sx={{fontWeight: 500}}>Get your money</Box>
+        </Button>
+        </>}
       </Paper>
     </>
   );
