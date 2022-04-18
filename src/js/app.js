@@ -215,7 +215,6 @@ App = {
             //Update front-end data
             console.log("bid event catched");
             App.updateFrontEndForBidData(result['args'], auctionAddress);
-
     },
 
     handleAuctionEnd: function(err, result, auctionAddress) {

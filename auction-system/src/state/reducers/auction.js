@@ -1,7 +1,7 @@
 import { ACTION_TYPES } from "../actionTypes";
 
 export const AuctionState = {
-    auctions: {},
+    auctions: [],
     web3: null,
     account: null,
     contracts: null,

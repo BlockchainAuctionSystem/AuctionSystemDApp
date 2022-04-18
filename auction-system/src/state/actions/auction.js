@@ -64,16 +64,43 @@ const readAuctions = (contracts) =>
            });
            return instance.getAuctions();
         }).then(async function(auctions) {
+            let auctionResult = [];
             if(auctions) {
-                 console.log("Got: " + auctions.length + "auctions!");
-                 console.log(auctions);
+                 let promises = auctions.map(auctionAddress => {
+                    return contracts.auction.at(auctionAddress). //Bind to old auctions events too
+                    then(async contract => {
+    
+                        let auctionInstance = contracts.auction.at(auctionAddress);
+    
+                        //TO DO: Bind to old auctions events too
+                        auctionAddress = contract.address;
+                        // auctionInstance.HighestBidIncreased().watch((err, result) => App.handleHighestBidIncreasedEvent(err, result, auctionAddress));
+                        // auctionInstance.AuctionEnded().watch((err, result) => App.handleAuctionEnd(err,result, auctionAddress));
+                        let promises = [contract.address, contract.beneficiary.call(), contract.title.call(), contract.description.call(),
+                            contract.startingBid.call(), contract.auctionEndTime.call(), contract.linkToImage.call(), contract.highestBid.call(),
+                            contract.highestBidder.call(), contract.ended.call()
+                        ];
+                        let solvedPromises = await Promise.all(promises);
+                        return {
+                            _auctionAddress: solvedPromises[0],
+                            _beneficiary: solvedPromises[1],
+                            _title: solvedPromises[2],
+                            _description: solvedPromises[3],
+                            _startingBid: solvedPromises[4],
+                            _biddingTime: solvedPromises[5],
+                            _linkToImage: solvedPromises[6],
+                            _highestBid: solvedPromises[7],
+                            _highestBidder: solvedPromises[8],
+                            _ended: solvedPromises[9]
+                        };
+                    })
+                });
+                auctionResult = await Promise.all(promises);
             }
-            else {
-              console.log("No auctions!");
-            }
+            console.log(auctionResult);
             dispatch({
                 type: ACTION_TYPES.READ_AUCTIONS,
-                payload: auctions
+                payload: auctionResult
             });
         });
     };
@@ -111,25 +138,25 @@ const createAuction = (auctionFactoryInstance, account, payload) =>
 
 
 // // TO BE TESTED!
-// const endAuction = (contracts, account, auctionId) => 
-//     async (dispatch) => {
-//         let auctionContract = contracts.Auction.at(auctionId);
-//         console.log(auctionContract);
-//         console.log("acution id", auctionId);
-//         auctionContract.ended.call().then((ended) => {
-//             console.log("Auction ended? : ", ended);
-//             if (!ended) {
-//                 auctionContract.endAuction({
-//                     from: account
-//                 });
-//             }
-//         });
-//     };
+const endAuction = (contracts, account, auctionId) => 
+    async (dispatch) => {
+        let auctionContract = await contracts.auction.at(auctionId);
+        console.log(auctionContract);
+        console.log("acution id", auctionId);
+        auctionContract.ended.call().then((ended) => {
+            console.log("Auction ended? : ", ended);
+            if (!ended) {
+                auctionContract.endAuction({
+                    from: account
+                });
+            }
+        });
+    };
 
 // // TO BE TESTED!
 // const getAmount = (contracts, account, auctionId) => 
 //     async (dispatch) => {
-//         auctionContract = contracts.Auction.at(auctionId);
+//         auctionContract = contracts.auction.at(auctionId);
 //         console.log(auctionId, auctionContract);
 //         auctionContract.withdraw({
 //             from: account
@@ -137,19 +164,21 @@ const createAuction = (auctionFactoryInstance, account, payload) =>
 //     }; 
 
 // // TO BE TESTED!
-// const bid = (contracts, account, auctionId, bidAmount) =>
-//     async (dispatch) => {
-//         let auctionContract = contracts.Auction.at(auctionId); ///bind for the auction
-//         console.log("binding function: ", auctionId, bidAmount);
-//         console.log("auctionContract bidden", auctionContract);
-//         // Execute the bidding
-//         auctionContract.bid({
-//             from: account,
-//             value: bidAmount
-//         });
-//     }    
+const bid = (contracts, account, auctionId, bidAmount) =>
+    async (dispatch) => {
+        let auctionContract = await contracts.auction.at(auctionId); ///bind for the auction
+        console.log("binding function: ", auctionId, bidAmount);
+        console.log("auctionContract bidden", auctionContract);
+        // Execute the bidding
+        auctionContract.bid({
+            from: account,
+            value: bidAmount
+        });
+    }    
 export {
   createAuction,
   setupEnv,
-  readAuctions
+  readAuctions,
+  bid,
+  endAuction
 };
