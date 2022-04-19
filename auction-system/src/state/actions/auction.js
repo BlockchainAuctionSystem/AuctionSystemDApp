@@ -192,7 +192,6 @@ const handleHighestBidIncreasedEvent = (err, result, auctionAddress, oldAuction)
             payload: {
                 auctionId: auctionAddress,
                 updatedAuction: {
-                    ...oldAuction,
                         _highestBidder: result['args']['bidder'],
                         _highestBid: result['args']['amount']
                 }
@@ -205,10 +204,10 @@ const handleAuctionEnd = (err, result, auctionAddress, oldAuction) =>
             type:ACTION_TYPES.UPDATE_AUCTION,
             payload: {
                 auctionId: auctionAddress,
-                updatedAuction: {...oldAuction,
+                updatedAuction: {
+                 _ended: true,
                  _beneficiary: result['args']['beneficiary'],
-                 _winner: result['args']['winner'],
-                _biddingTime: result['args']['biddingTime']}
+                 _winner: result['args']['winner']}
             }
         }
     }

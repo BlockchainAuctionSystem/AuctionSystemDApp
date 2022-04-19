@@ -16,8 +16,9 @@ const App = ({createAuction, setupEnv,  account, auctionFactoryInstance}) => {
   const [openForm, setOpenForm] = useState(false);
   const handleOpenForm = () => setOpenForm(true);
   const handleCloseForm = () => setOpenForm(false);
-  const openFilter = (auction) => auction && !auction._ended;
-  const closeFilter = (auction) => auction && auction._ended;
+  const hasEnded = (auction) => { let currentDate= new Date(); return auction && auction._biddingTime < currentDate.getTime()/ 1000; }
+  const openFilter = (auction) => auction && !hasEnded(auction);
+  const closeFilter = (auction) => auction && hasEnded(auction);
   const [filter, setFilter] = useState(true);
   useEffect(() => {
     try {

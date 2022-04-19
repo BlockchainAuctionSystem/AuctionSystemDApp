@@ -21,7 +21,7 @@ const auctionReducer = (state = AuctionState, action) => {
     else if(action.type == ACTION_TYPES.UPDATE_AUCTION) {
         return {...state, 
         auctions: state.auctions.map(
-            (auction) => auction._auctionAddress === action.payload.auctionId ? action.payload.updatedAuction
+            (auction) => auction._auctionAddress === action.payload.auctionId ? {...auction, ...action.payload.updatedAuction}
                                     : auction
         )};
     }

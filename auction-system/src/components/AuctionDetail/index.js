@@ -2,12 +2,24 @@ import React, { useState } from 'react';
 import {Button, Avatar, TextField, Box, Divider, FormControl, InputLabel, Input} from '@mui/material';
 import { formatDate } from '../../utils/functions';
 import { PaperStyle, BootstrapTooltip, COLORS } from '../../utils/constants';
+import {connect} from 'react-redux';
 
 const AuctionDetail = (props) => {
-   const { auction, endAuction, bid, getAmount} = props;
+   const { auction, endAuction, account, bid, getAmount} = props;
    const {month, day, dayHour} = formatDate(auction._biddingTime.toNumber());
    const [bidAmount, setBidAmount] = useState(100);
+   const [error, setError] = useState(false);
    console.log(auction._linkToImage);
+   const hasEnded = (auction) => { let currentDate= new Date(); return auction && auction._biddingTime < currentDate.getTime()/ 1000; }
+   const handleBid = () => {
+     if(parseInt(bidAmount) > Math.max(auction._highestBid, auction._startingBid)) {
+         bid(parseInt(bidAmount), auction._auctionAddress);
+         setError(false);
+      }
+      else {
+          setError(true);
+      }
+   } 
    return (
     <>
       <Box style={{width: '900px'}} sx={{display: 'flex', flexDirection: 'row', gap: 3}}>
@@ -61,18 +73,20 @@ const AuctionDetail = (props) => {
            <div style={{flexGrow: 1}}></div>
            <Divider sx={{bgColor: '#979BB0', my: 2}}  />
            <div>
-           {!auction._ended &&
+           {!hasEnded(auction) &&
             <> 
                <TextField
+                    error={error}
                     id="bidAmount"
                     name="bidAmount"
                     value={bidAmount}
                     placeholder="Bid amount"
                     sx={{ display: 'inline'}}
+                    helperText={error ? "You must bid higher." : ""}
                     onChange={(event) => setBidAmount(event.target.value)}>
                </TextField>
               <Button
-                onClick={() => bid(parseInt(bidAmount), auction._auctionAddress)}
+                onClick={() => handleBid()}
                 size="small"
                 variant="contained"
                 style={{textTransform: 'none'}}
@@ -82,7 +96,7 @@ const AuctionDetail = (props) => {
             </Button>
             </>}
             </div>
-         {!auction._ended &&
+         {hasEnded(auction) && !auction._ended && auction._beneficiary === account &&
         <Button
             onClick={() => endAuction(auction._auctionAddress)}
             size="medium"
@@ -91,7 +105,7 @@ const AuctionDetail = (props) => {
             sx={{borderRadius: '16px', m: 1}}>
             <Box sx={{fontWeight: 500}}>End Auction</Box>
         </Button>}
-        {auction._ended &&
+        { hasEnded(auction) && auction._ended && account !== auction._beneficiary && account !== auction._winner &&
         <>
          <Button
             onClick={() => getAmount(auction._auctionAddress)}
@@ -107,4 +121,19 @@ const AuctionDetail = (props) => {
     </>
   );
 };
-export default AuctionDetail;
+function mapStateToProps(state) {
+    return {
+      account: state.account
+    };
+  }
+  
+  const mapDispatchToProps = (dispatch) => {
+    return {
+      dispatch
+    };
+  };
+  export default connect(
+      mapStateToProps,
+      mapDispatchToProps,
+  )(AuctionDetail);
+  

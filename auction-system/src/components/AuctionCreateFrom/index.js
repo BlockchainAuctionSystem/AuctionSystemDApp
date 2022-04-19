@@ -47,7 +47,7 @@ const AuctionCreateForm= ({handleAuctionCreate}) => {
           />
         </FormControl>
         <FormControl fullWidth sx={{ m: 1}}>
-          <InputLabel htmlFor="biddingTime">Bidding Time</InputLabel>
+          <InputLabel htmlFor="biddingTime">Bidding Time (in seconds)</InputLabel>
           <Input
             id="biddingTime"
             name="biddingTime"
