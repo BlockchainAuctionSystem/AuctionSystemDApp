@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import {Button, Paper, Box} from '@mui/material';
+import {Button, Avatar, TextField, Box, Divider, FormControl, InputLabel, Input} from '@mui/material';
 import { formatDate } from '../../utils/functions';
-import { PaperStyle } from '../../utils/constants';
+import { PaperStyle, BootstrapTooltip, COLORS } from '../../utils/constants';
 
 const AuctionDetail = (props) => {
    const { auction, endAuction, bid, getAmount} = props;
@@ -10,65 +10,100 @@ const AuctionDetail = (props) => {
    console.log(auction._linkToImage);
    return (
     <>
-      <Paper sx={PaperStyle} style={{width: '1100px'}}>
-        <div>
-          <Box>{month} {day}</Box>
-          <Box sx={{
-            typography: 'subtitle2',
-            fontWeight: 'light',
-            color: 'text.secondary',
-          }}>
-            {dayHour}
-          </Box>
-        </div>
-        <img style={{width: '300px', height: '300px'}} src={auction._linkToImage}/>
-        <div style={{display: 'inline', flexGrow: 1}}>
-          <div style={{width: '350px'}}>
-            <Box>
+      <Box style={{width: '900px'}} sx={{display: 'flex', flexDirection: 'row', gap: 3}}>
+        <img
+         style={{width: '500px', 
+                 height: '500px', 
+                 objectFit: 'cover',
+                 borderRadius: '12px'}}
+         src={auction._linkToImage}/>
+        <div style={{display: 'flex', flexDirection: 'column'}}>
+           <Box sx={{color: '#322641', fontSize: 'h5.fontSize', fontWeight: 'bold'}}>
               {auction._title}
-            </Box>
-            <Box sx={{
+           </Box>
+           <Box sx={{
               typography: 'subtitle2',
               fontWeight: 'light',
               color: 'text.secondary',
             }}>
-              {auction._description} {auction._startingBid.toNumber()}
+              Minimum bid <span style={{fontWeight: '500'}}>{auction._startingBid.toNumber()} ETH</span>
             </Box>
-          </div>
-        </div>
-        {!auction._ended &&
-        <> <Button
+
+            <Box sx={{fontWeight: '500', mt: 4}}>Details</Box>
+            <Box sx={{fontSize: 'body1.fontSize'}}>{auction._description}</Box>
+            <div style={{display: 'flex'}}>
+                <div>
+                <Box sx={{fontWeight: '500', mt: 2}}>Highest bidder</Box>
+                <BootstrapTooltip title={auction._highestBid.toNumber() != 0 ? auction._highestBidder : 'No one bidded yet'}>
+                <Avatar 
+                sx={{ my: 1, background: COLORS.GRADIENT}}
+                >
+                    U
+                </Avatar>
+                </BootstrapTooltip>
+              </div>
+              <div style={{marginLeft: '10px'}}>
+              <Box sx={{fontWeight: '500', mt: 2}}>Highest bid</Box>
+              <Box sx={{fontWeight: '500', my: 1}}>{auction._highestBid.toNumber()} ETH</Box>
+              </div>
+            </div>
+            <Box sx={{fontWeight: '500', mt: 1}}>Available until</Box>
+            <div>
+            <Box sx={{fontSize: 'body1.fontSize'}}>{month} {day}</Box>
+            <Box sx={{
+                typography: 'subtitle2',
+                fontWeight: 'light',
+                color: 'text.secondary',
+            }}>
+                {dayHour}
+            </Box>
+            </div>
+           <div style={{flexGrow: 1}}></div>
+           <Divider sx={{bgColor: '#979BB0', my: 2}}  />
+           <div>
+           {!auction._ended &&
+            <> 
+               <TextField
+                    id="bidAmount"
+                    name="bidAmount"
+                    value={bidAmount}
+                    placeholder="Bid amount"
+                    sx={{ display: 'inline'}}
+                    onChange={(event) => setBidAmount(event.target.value)}>
+               </TextField>
+              <Button
+                onClick={() => bid(parseInt(bidAmount), auction._auctionAddress)}
+                size="small"
+                variant="contained"
+                style={{textTransform: 'none'}}
+                sx={{borderRadius: '16px', display: 'inline', ml: 2}}
+                >
+                <Box sx={{fontWeight: 500}}>Bid</Box>
+            </Button>
+            </>}
+            </div>
+         {!auction._ended &&
+        <Button
             onClick={() => endAuction(auction._auctionAddress)}
             size="medium"
             variant="contained"
-            disableElevation>
+            style={{textTransform: 'none'}}
+            sx={{borderRadius: '16px', m: 1}}>
             <Box sx={{fontWeight: 500}}>End Auction</Box>
-        </Button>
-        <input
-          name="bidAmount"
-          value={bidAmount}
-          onChange={(event) => setBidAmount(event.target.value)}
-        >
-        </input>
-        <Button
-            onClick={() => bid(parseInt(bidAmount), auction._auctionAddress)}
-            size="medium"
-            variant="contained"
-            disableElevation>
-            <Box sx={{fontWeight: 500}}>Bid</Box>
-        </Button>
-        </>}
+        </Button>}
         {auction._ended &&
         <>
          <Button
             onClick={() => getAmount(auction._auctionAddress)}
             size="medium"
             variant="contained"
-            disableElevation>
+            style={{textTransform: 'none'}}
+            sx={{borderRadius: '16px', m: 1}}>
             <Box sx={{fontWeight: 500}}>Get your money</Box>
         </Button>
         </>}
-      </Paper>
+        </div>
+      </Box>
     </>
   );
 };

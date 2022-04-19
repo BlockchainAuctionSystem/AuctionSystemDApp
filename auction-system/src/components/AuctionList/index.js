@@ -1,49 +1,59 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {useEffect} from 'react';
-import {Box} from '@mui/material';
+import {Box, Chip} from '@mui/material';
 import { readAuctions, endAuction, bid, getAmount } from '../../state/actions/auction';
-import AuctionDetail from '../AuctionDetail';
+import AuctionItem from '../AuctionItem';
 
 const AuctionList = ({auctions, account, readAuctions, contracts, endAuction, bid, getAmount, filter}) => {
+    let loading = true;
+    useEffect(() => {
+        loading = true;
+    }, []);
     useEffect(() => {
         if(contracts) {
             console.log(contracts);
             readAuctions(contracts);
         }
-        }, [contracts]);
+    }, [contracts]);
+    useEffect(() => {
+        loading = false;
+    }, [auctions])
+    console.log(loading);
     const handleBid = (bidAmount, auctionAddress) => bid(contracts, account, auctionAddress, bidAmount);
     const handleEndAuction = (auctionAddress) => endAuction(contracts, account, auctionAddress);
     const handleGetAmount = (auctionAddress) => getAmount(contracts, account, auctionAddress);
     return (
     <>
-      <Box>
-        <Box sx={{fontSize: 'body.fontSize'}}>{auctions.filter(filter).length} available auctions</Box>
+      <Box sx={{mt: 10, mb: 10}}> 
+        <Chip sx={{fontSize: 'body.fontSize', fontWeight: '500'}} label={`We've found ${auctions.filter(filter).length} auctions`}/>
         <Box sx={{
           display: 'flex',
           flexDirection: 'row',
           justifyContent: 'center',
-          mt: 12,
+          alignContent: 'center',
+          mt: 3,
         }}>
-          <div>
+        
             {auctions !== [] &&
             <Box sx={{
               display: 'flex',
               gap: 3,
               flexWrap: 'wrap',
+              justifyContent: 'center'
             }}>
               {auctions.filter(filter).map((auction, index) => (
-                auction._biddingTime && <AuctionDetail 
+                auction._biddingTime &&
+                <AuctionItem
                 key={index} 
                 auction={auction}
                 endAuction={handleEndAuction}
                 bid={handleBid}
                 getAmount={handleGetAmount}
-                ></AuctionDetail>
+                ></AuctionItem>
               ))}
             </Box>
             }
-          </div>
         </Box>
       </Box>
     </>
