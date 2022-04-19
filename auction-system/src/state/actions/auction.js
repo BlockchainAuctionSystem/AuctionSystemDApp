@@ -112,7 +112,7 @@ const createAuction = (auctionFactoryInstance, account, payload) =>
         else {
                 const client = create('https://ipfs.infura.io:5001/api/v0')
                 const added = await client.add(image);
-                const ipfsLink = `https://gateway.ipfs.io/ipfs/${added.path}`
+                const ipfsLink = `https://ipfs.infura.io/ipfs/${added.path}`
                 auctionFactoryInstance.createAuction(account, title, description, 
                     parseInt(startingBid), parseInt(biddingTime), ipfsLink, {
                     from: account

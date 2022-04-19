@@ -31,10 +31,11 @@ const App = ({createAuction, setupEnv,  account, auctionFactoryInstance}) => {
   }, []);
   const handleAuctionCreate = (event, props) => {
        event.preventDefault();
+       setOpenForm(false);
        createAuction(auctionFactoryInstance, account, props);
   }
   return (
-      <div className="App" style={{backgroundColor: '#F3F3F9', overflow: 'auto'}}>
+      <div className="App" style={{backgroundColor: '#F3F3F9', overflow: 'auto', minHeight: '100vh'}}>
         <LeftBar account={account}/>
         <div style={{marginLeft: `${BAR_WIDTH + 20}px`, marginRight: '20px'}}>
           <div style={{display: 'flex', flexDirection: 'row', marginTop: '20px', marginBottom: '12px'}}>

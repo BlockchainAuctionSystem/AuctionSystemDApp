@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState } from "react";
-import { StyledInput, COLORS } from '../../utils/constants';
+import { StyledInput, COLORS, DEFAULT_AUCTION_PHOTO_URL } from '../../utils/constants';
 import TextField from '@mui/material/TextField';
 import FormControl from '@mui/material/FormControl';
 import {Input,Box, InputLabel, Button} from '@mui/material';
@@ -66,8 +66,14 @@ const AuctionCreateForm= ({handleAuctionCreate}) => {
            <Box sx={{fontWeight: 500}}>Upload File</Box>
               <input type="file" hidden onChange={(event) => setImage(event.target.files[0])} /> 
            </Button>
-           {image && image.name && <Box sx={{typography: 'subtitle1', mt: 1}}>You uploaded {image.name}</Box>}
         </form>
+        <img
+            style={{width: '250px', 
+                 height: '250px', 
+                 objectFit: 'cover',
+                 borderRadius: '12px', marginTop: '8px'}}
+            src={image && image.name ? URL.createObjectURL(image) : DEFAULT_AUCTION_PHOTO_URL}/>
+           {image && image.name && <Box sx={{typography: 'subtitle1', mt: 1}}>You uploaded {image.name}</Box>}
         <Button
           style={{textTransform: 'none'}}
           variant="contained"

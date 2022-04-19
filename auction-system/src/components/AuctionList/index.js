@@ -6,10 +6,6 @@ import { readAuctions, endAuction, bid, getAmount } from '../../state/actions/au
 import AuctionItem from '../AuctionItem';
 
 const AuctionList = ({auctions, account, readAuctions, contracts, endAuction, bid, getAmount, filter}) => {
-    let loading = true;
-    useEffect(() => {
-        loading = true;
-    }, []);
     useEffect(() => {
         if(contracts) {
             console.log(contracts);
@@ -17,9 +13,16 @@ const AuctionList = ({auctions, account, readAuctions, contracts, endAuction, bi
         }
     }, [contracts]);
     useEffect(() => {
-        loading = false;
-    }, [auctions])
-    console.log(loading);
+        if(auctions){
+           let currentDate = new Date();
+           auctions.map((auction) => {
+             if(!auction._ended && auction._biddingTime < currentDate.getTime()/ 1000) {
+                 handleEndAuction(auction._auctionAddress);
+             }
+           }
+           )
+        }
+    }, [auctions]);
     const handleBid = (bidAmount, auctionAddress) => bid(contracts, account, auctionAddress, bidAmount);
     const handleEndAuction = (auctionAddress) => endAuction(contracts, account, auctionAddress);
     const handleGetAmount = (auctionAddress) => getAmount(contracts, account, auctionAddress);
