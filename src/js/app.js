@@ -162,6 +162,7 @@ App = {
 
         App.contracts.AuctionFactory.deployed().then(function(instance) {
             App.auctionFactoryInstance = instance;
+            console.log(instance);
             App.auctionFactoryInstance.AuctionCreated().watch(function(err, result) {
                 if (err)
                     console.log("Error in binding listener to AuctionCreated event: " + err);
@@ -214,7 +215,6 @@ App = {
             //Update front-end data
             console.log("bid event catched");
             App.updateFrontEndForBidData(result['args'], auctionAddress);
-
     },
 
     handleAuctionEnd: function(err, result, auctionAddress) {
